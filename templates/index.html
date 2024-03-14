@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Echo News Website</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <header>
+        <h1>Echo News</h1>
+        <select id="language-select">
+            {% for language, abbreviation in language_mappings.items() %}
+                {% set selectedLangTrimmed = selectedLang|trim %}
+                {% set abbreviationTrimmed = abbreviation|trim %}
+                <option value="{{ abbreviation }}" {% if selectedLangTrimmed == abbreviationTrimmed %} selected {% endif %}>{{ language }} </option>
+            {% endfor %}
+        </select>
+        
+        
+        
+        
+        <nav class="dropdown">
+            <button class="dropbtn" onclick="toggleDropdown()">Menu</button>
+            <div class="dropdown-content" id="dropdownContent">
+                <a href="/Home">Home</a>
+                <!-- Categories dropdown with submenus -->
+                <div class="submenu">
+                    <a href="#" onclick="toggleSubmenu()">Categories</a>
+                    <div class="submenu-content" id="submenuContent">
+                        <a href="/World">World</a>
+                        <a href="/Local">Local</a>
+                        <a href="/Business">Business</a>
+                        <a href="/Technology">Technology</a>
+                        <a href="/Entertainment">Entertainment</a>
+                        <a href="/Sports">Sports</a>
+                        <a href="/Science">Science</a>
+                        <a href="/Health">Health</a>
+                    </div>
+                </div>
+                <a href="#">About Us</a>
+            </div>
+        </nav>
+    </header>
+    <main class="grid-container">
+        <!-- Loop over each article in the list -->
+        {% for article in articles_list %}
+        <article class="article" id="article-container">
+            <div class="article-header">
+                <h2>{{ article['Title'] }}</h2>
+                <a href="{{ article['Link'] }}" class="article-link">
+                <img src="{{ article['Image'] }}" alt="{{ article['Title'] }} Image">
+                </a>
+            </div>
+        <div class="article-content">
+                <p>{{ article['Summary'] }}</p>
+            </div>
+        </article>
+        {% endfor %}
+
+    </main>
+    <footer>
+        <p>&copy; 2024 Echo News. All rights reserved.</p>
+    </footer>
+
+    <script>
+        function toggleDropdown() {
+            var dropdownContent = document.getElementById("dropdownContent");
+            dropdownContent.classList.toggle("show");
+        }
+
+        function toggleSubmenu() {
+            var submenuContent = document.getElementById("submenuContent");
+            submenuContent.classList.toggle("show");
+        }
+    </script>
+
+        <script>
+        document.getElementById('language-select').addEventListener('change', function() {
+            var selectedLanguage = this.value;
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '/set_language', true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === XMLHttpRequest.DONE) {
+                    if (xhr.status === 200) {
+                        console.log('Language set:', selectedLanguage);
+                        window.location.reload();
+                    } else {
+                        console.error('Error setting language:', xhr.status);
+                    }
+                }
+            };
+            xhr.send(JSON.stringify({ language: selectedLanguage }));
+        });
+    </script>
+
+</body>
+</html>
